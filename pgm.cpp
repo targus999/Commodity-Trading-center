@@ -18,14 +18,22 @@ void subtraction(int a,int b)
  cout<<"subtracting "<<a<< "from "<<b" is : "<<c;
 }
 
+void divide(double a,double b){
+	double result;
+	result=a/b;
+	cout<<"Result = "<<result<<endl;
+}
+
 int main()
 {
 int a=4,b=6;
 multiplication(a,b);
 subtraction(a,b);  
 add(a,b);
-
+divide(a,b);
+  
 return 0;
+
 }
 
 
