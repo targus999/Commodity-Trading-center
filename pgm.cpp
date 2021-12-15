@@ -1,13 +1,30 @@
 #include<iostream>
 using namespace std;
+
 void add(int a,int b){
   int sum=a+b;
   cout<<"Addition "<<sum<<endl;
 }
+
+void multiplication(int a,int b)
+{
+	int c=a*b;
+	cout<<"product="<<c;
+}
+
+void subtraction(int a,int b)
+{
+ int c=a-b;
+ cout<<"subtracting "<<a<< "from "<<b" is : "<<c;
+}
+
 int main()
 {
-int a=77,b=23;
+int a=4,b=6;
+multiplication(a,b);
+subtraction(a,b);  
 add(a,b);
+
 return 0;
 }
 
