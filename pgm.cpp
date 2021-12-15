@@ -15,7 +15,7 @@ void multiplication(int a,int b)
 void subtraction(int a,int b)
 {
  int c=a-b;
- cout<<"subtracting "<<a<< "from "<<b" is : "<<c;
+ cout<<"subtracting "<<a<< "from "<<b<<" is : "<<c;
 }
 
 void divide(int a,int b){
