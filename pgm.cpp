@@ -83,6 +83,7 @@ class Commodity{
 		}
 		
 		float get_price(){return price;}
+		
 
 };
 
@@ -90,40 +91,79 @@ class Commodity{
 
 
 
+class User{
+	protected:
+		char name[25],email[50];
+		int age;
+		float balance;
+		long int phone;
+		bool accept=true;
+		bool active=false;
+	public:
+		void get_function()
+                {
+                        cout<<"Enter your name:"<<endl;
+                        cin>>name;
+                        cout<<"Enter your E-mail:"<<endl;
+                        cin>>email;
+                        cout<<"Enter your phone number:"<<endl;
+                        cin>>phone;
+                        cout<<"Enter your age:"<<endl;
+                        cin>>age;
+                        balance=0;
+                        cout<<"\n";
+                }	
+                
+                static void create_key(const char *email_id)  		// to create key
+		{
+			strcpy(key_buffer,email_id);
+			key.dptr=key_buffer;
+			key.dsize=strlen(key_buffer);
+			return;
+		}
+                
+                void activate(){active=true;}
+                
+                void link_bankAccnt()
+		{
+			int c;
+			printf("\n Enter amount to be credited to your account  : ");
+			cin>>balance;
+			cout<<"\n Bank Balance is  :  "<<balance<<endl;
+			return ;
+		}
+		
+		void set_accept(){
+			cout<<"Will you accept the outcome"<<endl;
+			cout<<"1.YES"<<endl;
+			cout<<"2.NO"<<endl;
+			int x;
+			cin>>x;
+			if(x==1)accept=true;
+			else accept=false;
+		}
+		
+		bool get_accept(void){return accept;}
+		
+                
+};
 
 
-class Seller				                                                      //seller class
+
+class Seller:public User				                                                      //seller class
 {
 	protected:
-		char email_id[50];
-		char sname[25];
-		long int mob;
-		int age;
-		float rating=5,balance=0;
-		bool accept=false;
-		bool active=false;
+		float rating=5;
 	public:	
 		Seller(){}					                                //constructor
 		friend class DBMS;
 		friend class Admin;
-		void get_function()			                                        // function to get input from the user
-		{
-			cout<<"\n Enter your name  :  ";
-	  		cin>>sname;
-	  		cout<<"\n Enter your email id  : ";
-	  		cin>>email_id; 
-	  		cout<<"\n Enter your age : ";
-			cin>>age;
-	  		cout<<"\n Enter your mobile number : ";
-			cin>>mob;
-	  		
-		}
 		
 		Seller(const char* n,const char* c,long int f,int a,float b,bool g,float h,bool ac)			//parameterized constructor 
 		{
-			strcpy(sname,n);
-			strcpy(email_id,c);
-			mob=f;
+			strcpy(name,n);
+			strcpy(email,c);
+			phone=f;
 			age=a;
 			rating=b;
 			accept=g;
@@ -131,24 +171,12 @@ class Seller				                                                      //seller c
 			active=ac;
 		}
 		~Seller(){}			//destructor
+	
 		
-		// functions that return's values of seller class variables to the main section
-		
-		
-		bool get_accept(void){return accept;}
-		
-		
-		static void create_key(const char *email_id)  		// to create key
-		{
-			strcpy(key_buffer,email_id);
-			key.dptr=key_buffer;
-			key.dsize=strlen(key_buffer);
-			return;
-		}
 		
 		static void create_record(Seller e)					// to create record
 		{
-			sprintf(record_buffer," %s %s %ld %d %f %d %f %d",e.sname,e.email_id,e.mob,e.age,e.rating,e.accept,e.balance,e.active);
+			sprintf(record_buffer," %s %s %ld %d %f %d %f %d",e.name,e.email,e.phone,e.age,e.rating,e.accept,e.balance,e.active);
 			record.dptr=record_buffer;
 			record.dsize=strlen(record_buffer);
 			return;
@@ -161,8 +189,8 @@ class Seller				                                                      //seller c
 		  if(accept==false)
 		    {
 		       rating=rating-0.1;
-		       if(rating==5)
-		       rating=5;
+		       if(rating<=0)
+		       rating=0;
 		    }
 		  else
 		    {
@@ -173,30 +201,7 @@ class Seller				                                                      //seller c
 		    }
 		}
 		
-		// fuction on link bank account with trading account of the seller
-		
-		
-		void activate(){active=true;}
-		
-		
-		void link_bankAccnt()
-		{
-			int c;
-			printf("\n Enter amount to be credited to your account  : ");
-			cin>>balance;
-			cout<<"\n Bank Balance is  :  "<<balance<<endl;
-			return ;
-		}
-		void set_accept(){
-			cout<<"Will you accept the outcome"<<endl;
-			cout<<"1.YES"<<endl;
-			cout<<"2.NO"<<endl;
-			int x;
-			cin>>x;
-			if(x==1)accept=true;
-			else accept=false;
-		}
-		
+
 };	// seller class ends here
 
 
@@ -205,14 +210,8 @@ class Seller				                                                      //seller c
 
 
 
-class Buyer
+class Buyer:public User
 {
-	protected:
-		char name[25],email[50];
-		int age, phone_no;
-        	float balance=0;
-		bool active=false;
-		bool accept=false;
     	public:
 		friend class DBMS;
 		friend class Admin;
@@ -220,7 +219,7 @@ class Buyer
 		Buyer(const char *n,long unsigned ph,const char *e,float b,bool a,bool i,int g){   
 		       strcpy(name,n);
                	strcpy(email,e);
-               	phone_no=ph;
+               	phone=ph;
                	age=g;
                	balance=b;
                	accept=a;
@@ -229,58 +228,23 @@ class Buyer
 		
         	~Buyer(){}
         	float get_balance(){return balance;}
-		void link_bankAccnt()
-		{   
-			
-			printf("\n Enter amount to be credited to your account  : ");
-			cin>>balance;
-			cout<<"\n Bank Balance is : "<<balance<<endl;
-			return ;
-		}
 		
-		void get_function()
-		{
-				cout<<"\n Enter your name  :  ";
-				cin>>name;
-				cout<<"\n Enter email id  :  ";
-				cin>>email;
-				cout<<"\n Enter your phone number  :  ";
-				cin>>phone_no;
-				cout<<"\n Enter age  :  ";
-				cin>>age;
-		}
 
-       	static void create_key(const char *email)
-       	{
-              		strcpy(key_buffer,email);
-              		key.dptr=key_buffer;
-              		key.dsize=strlen(key_buffer);
-              		return;
-       	 }
-       	 
     	   	static void create_record(Buyer b)
        	{
-          		sprintf(record_buffer,"%s %d %s %f %d %d %d",b.name,b.phone_no,b.email,b.balance,b.accept,b.active,b.age);
+          		sprintf(record_buffer,"%s %ld %s %f %d %d %d",b.name,b.phone,b.email,b.balance,b.accept,b.active,b.age);
           		record.dptr=record_buffer;
           		record.dsize=strlen(record_buffer);
           		return;
 		}
-		void set_accept(){
-			cout<<"Will you accept the outcome"<<endl;
-			cout<<"1.YES"<<endl;
-			cout<<"2.NO"<<endl;
-			int x;
-			cin>>x;
-			if(x==1)accept=true;
-			else accept=false;
-		}
+		
 		
 		void update_rating()									
 		{
 		  active=accept;
 		}
 		
-		void activate(){active=true;}
+		
 };
 
 
@@ -308,7 +272,7 @@ public:
 			
 			
 	void add_Seller(Seller s){	// function to add seller details by creating record and key
-			Seller::create_key(s.email_id);
+			Seller::create_key(s.email);
 			Seller::create_record(s);
 			int ret_val=gdbm_store(dbf,key,record,GDBM_INSERT);
 			if(ret_val) cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
@@ -317,8 +281,8 @@ public:
 		
 		// function to fetch seller details by creating a new key in the database aswell as creating the records with the corresponding key
 		
-	Seller fetch_Seller(const char *email_id){
-			Seller::create_key(email_id);
+	Seller fetch_Seller(const char *email){
+			Seller::create_key(email);
 			datum record=gdbm_fetch(dbf,key);
 			if(record.dptr==NULL)cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
 			char n[25],c[20];
@@ -335,7 +299,7 @@ public:
 		// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key
 		
 	void update_Seller(Seller s){
-			Seller::create_key(s.email_id);
+			Seller::create_key(s.email);
 			Seller::create_record(s);
 			int ret_val=gdbm_store(dbf,key,record,GDBM_REPLACE);
 			if(ret_val) cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
@@ -358,14 +322,15 @@ public:
             		datum record=gdbm_fetch(dbf,key);
             		if(record.dptr==NULL)cout<<"GDBM error : "<<gdbm_strerror(gdbm_errno)<<endl;
             		char n[100],e[50];
-            		int ph,g;
+            		int g;
+            		long int ph;
 			float b;
 			int a,i;
 			char record_buffer[1024];
             		strncpy(record_buffer,record.dptr,record.dsize);
             		record_buffer[record.dsize]='\0';
             		free(record.dptr);
-            		sscanf(record_buffer,"%s %d %s %f %d %d %d",n,&ph,e,&b,&a,&i,&g);
+            		sscanf(record_buffer,"%s %ld %s %f %d %d %d",n,&ph,e,&b,&a,&i,&g);
             		return Buyer(n,ph,e,b,a,i,g);
 	}
 		
@@ -409,7 +374,7 @@ public:
        }
        void update_Commodity(Commodity c){
 			Commodity::create_key(c.c_id);
-			Commodity::create_record(c);
+			Commodity::create_record(c);                
             		int ret_val=gdbm_store(dbf,key,record,GDBM_REPLACE);
             		if(ret_val)cout<<"\n GDBM error : "<<gdbm_strerror(gdbm_errno)<<endl;
             		else cout<<"\n Commodity updated successfully \n";
@@ -418,7 +383,7 @@ public:
                      // dbms class ends here
 
 
-class Admin : public Commodity, public Seller, public Buyer{
+class Admin {
 	public:
 	       void approve_user(Buyer b,Seller s,DBMS d){
 	       	cout<<"Select the type of user"<<endl;
@@ -432,10 +397,12 @@ class Admin : public Commodity, public Seller, public Buyer{
       	  		if(x==1){
       	  			b=d.fetch_Buyer(i);
       	  			b.activate();
+      	  			d.update_Buyer(b);
       	  		}
       	  		else{
       	  			s=d.fetch_Seller(i);
       	  			s.activate();
+      	  			d.update_Seller(s);
       	  		}
       	  	    	
       	  	     	
@@ -589,7 +556,8 @@ int main()
       	  	      	{	char i[20];
         			cout<<"Enter the Buyer e-mail : ";
         			cin>>i; 
-        			b=d.fetch_Buyer(i); 
+        			b=d.fetch_Buyer(i);
+        			
       	  	      		do{	
             					cout<<"\n";
             					cout<<"\n";
