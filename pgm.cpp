@@ -8,11 +8,6 @@ using namespace std;
 char key_buffer[400],record_buffer[2048];
 datum key,record;
 
-
-
-
-
-
 class Commodity{
         protected:
                 char cname[50],s_email[50],c_id[20],hbidder[50];
@@ -23,7 +18,7 @@ class Commodity{
                 friend class DBMS;
                 friend class Admin;
                 Commodity(){}
-                void get_funtion()
+                void get_function()
                 {
                         cout<<"Enter seller email:"<<endl;
                         cin>>s_email;
@@ -35,10 +30,11 @@ class Commodity{
                         cin>>weight;
                         cout<<"Enter price of commodity:"<<endl;
                         cin>>price;
+                        strcpy(hbidder,"nil");
                         cout<<"\n";
                 }
                 
-                Commodity(const char *cn, const char *sm,const char *id,const char *h,int w,float p,bool a){
+                Commodity(const char *cn, const char *sm,const char *id,int w,float p,bool a,const char *h){
                         strcpy(cname,cn);
 			 strcpy(s_email,sm);
                         strcpy(c_id,id);
@@ -47,8 +43,10 @@ class Commodity{
                         price=p;
 			 active=a;
                 }
+                
 		void set_price(float p){price=p;}
-                static void create_key(const char *c_id)
+		
+               static void create_key(const char *c_id)
                {
                         strcpy(key_buffer,c_id);
                         key.dptr=key_buffer;
@@ -56,30 +54,34 @@ class Commodity{
                         return;
 
                 }
+                
                 static void create_record(Commodity c)
                 {
-                        sprintf(record_buffer,"%s %s %s %s %d %f %d",c.cname,c.s_email,c.c_id,c.hbidder,c.weight,c.price,c.active);
+                        sprintf(record_buffer,"%s %s %s %d %f %d %s",c.cname,c.s_email,c.c_id,c.weight,c.price,c.active,c.hbidder);
                         record.dptr=record_buffer;
                         record.dsize=strlen(record_buffer);
                         return;
                 }
+                
+		bool state(){return active;}
 		
-                void accept_bid(int i)
-                {
-			if(active==true)
-			{
-                        	cout<<"SUCCESS";
-                        	//COMPLETE THIS=======================================================================================================
-                	}
-			else cout<<"Cannot bid!"<<endl;
+                void accept_bid(float p,char* i){
+			price=p;
+			strcpy(hbidder,i);
 		}
+		
 		void close_bid(){active=false;}
+		
 		bool activate(){active=true;return active;}
+		
 		void display_Commodity(){
 			cout<<"COMMODITY ID : "<<c_id<<endl;
         		cout<<"COMMODITY NAME : "<<cname<<endl;
         		cout<<"COMMODITY PRICE : "<<price<<endl;
+        		cout<<"HIGHEST BIDDER : "<<hbidder<<endl;
+        		cout<<"status : "<<active<<endl;
 		}
+		
 		float get_price(){return price;}
 
 };
@@ -93,12 +95,13 @@ class Commodity{
 class Seller				                                                      //seller class
 {
 	protected:
-		char email_id[35];
+		char email_id[50];
 		char sname[25];
 		long int mob;
 		int age;
 		float rating=5,balance=0;
 		bool accept=false;
+		bool active=false;
 	public:	
 		Seller(){}					                                //constructor
 		friend class DBMS;
@@ -116,7 +119,7 @@ class Seller				                                                      //seller c
 	  		
 		}
 		
-		Seller(const char* n,const char* c,long int f,int a,float b,bool g,float h)			//parameterized constructor 
+		Seller(const char* n,const char* c,long int f,int a,float b,bool g,float h,bool ac)			//parameterized constructor 
 		{
 			strcpy(sname,n);
 			strcpy(email_id,c);
@@ -125,7 +128,7 @@ class Seller				                                                      //seller c
 			rating=b;
 			accept=g;
 			balance=h;
-			
+			active=ac;
 		}
 		~Seller(){}			//destructor
 		
@@ -145,7 +148,7 @@ class Seller				                                                      //seller c
 		
 		static void create_record(Seller e)					// to create record
 		{
-			sprintf(record_buffer," %s %s %ld %d %f %d %f ",e.sname,e.email_id,e.mob,e.age,e.rating,e.accept,e.balance);
+			sprintf(record_buffer," %s %s %ld %d %f %d %f %d",e.sname,e.email_id,e.mob,e.age,e.rating,e.accept,e.balance,e.active);
 			record.dptr=record_buffer;
 			record.dsize=strlen(record_buffer);
 			return;
@@ -172,6 +175,10 @@ class Seller				                                                      //seller c
 		
 		// fuction on link bank account with trading account of the seller
 		
+		
+		void activate(){active=true;}
+		
+		
 		void link_bankAccnt()
 		{
 			int c;
@@ -179,6 +186,15 @@ class Seller				                                                      //seller c
 			cin>>balance;
 			cout<<"\n Bank Balance is  :  "<<balance<<endl;
 			return ;
+		}
+		void set_accept(){
+			cout<<"Will you accept the outcome"<<endl;
+			cout<<"1.YES"<<endl;
+			cout<<"2.NO"<<endl;
+			int x;
+			cin>>x;
+			if(x==1)accept=true;
+			else accept=false;
 		}
 		
 };	// seller class ends here
@@ -192,10 +208,10 @@ class Seller				                                                      //seller c
 class Buyer
 {
 	protected:
-		char name[100],email[50];
+		char name[25],email[50];
 		int age, phone_no;
         	float balance=0;
-		bool is_blacklisted=false;
+		bool active=false;
 		bool accept=false;
     	public:
 		friend class DBMS;
@@ -208,11 +224,11 @@ class Buyer
                	age=g;
                	balance=b;
                	accept=a;
-               	is_blacklisted=i;
+               	active=i;
          	}
 		
         	~Buyer(){}
-        	
+        	float get_balance(){return balance;}
 		void link_bankAccnt()
 		{   
 			
@@ -226,10 +242,10 @@ class Buyer
 		{
 				cout<<"\n Enter your name  :  ";
 				cin>>name;
+				cout<<"\n Enter email id  :  ";
+				cin>>email;
 				cout<<"\n Enter your phone number  :  ";
 				cin>>phone_no;
-				cout<<"\n Enter email id  :  ";
-				cin>>email;	
 				cout<<"\n Enter age  :  ";
 				cin>>age;
 		}
@@ -244,7 +260,7 @@ class Buyer
        	 
     	   	static void create_record(Buyer b)
        	{
-          		sprintf(record_buffer,"%s %d %s %f %d %d %d",b.name,b.phone_no,b.email,b.balance,b.accept,b.is_blacklisted,b.age);
+          		sprintf(record_buffer,"%s %d %s %f %d %d %d",b.name,b.phone_no,b.email,b.balance,b.accept,b.active,b.age);
           		record.dptr=record_buffer;
           		record.dsize=strlen(record_buffer);
           		return;
@@ -252,13 +268,19 @@ class Buyer
 		void set_accept(){
 			cout<<"Will you accept the outcome"<<endl;
 			cout<<"1.YES"<<endl;
-			cout<<"1.NO"<<endl;
+			cout<<"2.NO"<<endl;
 			int x;
 			cin>>x;
 			if(x==1)accept=true;
 			else accept=false;
 		}
-
+		
+		void update_rating()									
+		{
+		  active=accept;
+		}
+		
+		void activate(){active=true;}
 };
 
 
@@ -301,13 +323,13 @@ public:
 			if(record.dptr==NULL)cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
 			char n[25],c[20];
 			long int f;
-			int a,g;
+			int a,g,ac;
 			float b,h;
 			strncpy(record_buffer,record.dptr,record.dsize);
 			record_buffer[record.dsize]='\0';
 			free(record.dptr);
-			sscanf(record_buffer," %s %s %ld %d %f %d %f",n,c,&f,&a,&b,&g,&h);
-			return Seller(n,c,f,a,b,g,f);
+			sscanf(record_buffer," %s %s %ld %d %f %d %f %d",n,c,&f,&a,&b,&g,&h,&ac);
+			return Seller(n,c,f,a,b,g,f,ac);
 	}
 		
 		// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key
@@ -376,8 +398,8 @@ public:
                         strncpy(record_buffer,record.dptr,record.dsize);
 			 record_buffer[record.dsize]='\0';
                         free(record.dptr);
-                        sscanf(record_buffer,"%s %s %s %s %d %f %d",cn,sm,id,h,&w,&p,&a);
-                        return Commodity(cn,sm,id,h,w,p,a);
+                        sscanf(record_buffer,"%s %s %s %d %f %d %s",cn,sm,id,&w,&p,&a,h);
+                        return Commodity(cn,sm,id,w,p,a,h);
        }
        void delete_Commodity(const char *c_id){
                         Commodity::create_key(c_id);
@@ -398,28 +420,40 @@ public:
 
 class Admin : public Commodity, public Seller, public Buyer{
 	public:
-	       void set_price(Commodity c,DBMS d){
+	       void approve_user(Buyer b,Seller s,DBMS d){
+	       	cout<<"Select the type of user"<<endl;
+			cout<<"1.Buyer"<<endl;
+			cout<<"2.Seller"<<endl;
+			int x;
+			cin>>x;
 	       	char i[20];
-	       	float p;
-	       	cout<<"\nEnter the Commodity price : ";
-      	  	    	cin>>p;
-      	  		cout<<"\nEnter the Commodity id : ";
+      	  		cout<<"\nEnter the User id : ";
       	  		cin>>i;
-      	  		cout<<"\n";
-      	  		c=d.fetch_Commodity(i);
-      	  	    	c.set_price(p);
-      	  	     	d.update_Commodity(c);
+      	  		if(x==1){
+      	  			b=d.fetch_Buyer(i);
+      	  			b.activate();
+      	  		}
+      	  		else{
+      	  			s=d.fetch_Seller(i);
+      	  			s.activate();
+      	  		}
+      	  	    	
+      	  	     	
 	       }
 	       void start_bid(Commodity c,DBMS d){
 	       	char i[20];
       	  		cout<<"\nEnter the Commodity id : ";
       	  		cin>>i;
+      	  		float p;
+	       	cout<<"\nEnter the Commodity price : ";
+      	  	    	cin>>p;
       	  		cout<<"\n";
       	  		c=d.fetch_Commodity(i);
+      	  		c.set_price(p);
       	  	    	bool j=c.activate();
       	  	     	d.update_Commodity(c);
-      	  	     	if(j){cout<<"Bidding started"<<endl;}
-      	  	     	else cout<<"Bidding did not start"<<endl;
+      	  	     	if(j==true){cout<<"Bidding started"<<endl;}
+      	  	     	else cout<<"Bidding has not start"<<endl;
 	       }
 	       void close_bid(Commodity c,DBMS d){
 	       	char i[20];
@@ -427,17 +461,25 @@ class Admin : public Commodity, public Seller, public Buyer{
       	  		cin>>i;
       	  		cout<<"\n";
       	  		c=d.fetch_Commodity(i);
-      	  		Buyer b=d.fetch_Buyer(c.hbidder);
-      	  		Seller s=d.fetch_Seller(c.s_email);
-      	  	    	c.close_bid();
-      	  	     	if(b.accept && s.accept){
-      	  	     		b.balance-=c.price;
-      	  	     		s.balance+=c.price;
+      	  		c.close_bid();
+      	  		if(c.hbidder!="nil"){
+      	  			Buyer b=d.fetch_Buyer(c.hbidder);
+      	  			Seller s=d.fetch_Seller(c.s_email);
+      	  			s.update_rating();
+      	  			b.update_rating();
+      	  	     		if(b.accept==true && s.accept==true){
+      	  	     			int com=c.price/200;
+      	  	     			cout<<"A commission of Rs"<<com<<" taken by both parties. "<<endl;
+      	  	     			b.balance=b.balance-c.price-com;
+      	  	     			s.balance=s.balance+c.price-com;
+      	  	     			
+      	  	     		}
+      	  	     		else cout<<"item was not sold Bidding closed"<<endl;
+      	  	     		d.update_Commodity(c);
+      	  	     		d.update_Buyer(b);
+      	  	     		d.update_Seller(s);
       	  	     	}
-      	  	     	else cout<<"item was not sold Bidding closed";
-      	  	     	d.update_Commodity(c);
-      	  	     	d.update_Commodity(c);
-      	  	     	d.update_Commodity(c);
+      	  	     	else cout<<"No one bidded on the item, item NOT SOLD"<<endl;	
       	  	     	
 	       }
 };
@@ -478,7 +520,7 @@ int main()
       	  	cout<<"\n\t\t\t  WELCOME TO COMMIDITY TRADING CENTER  \n";
       	  	cout<<"\n \t\t\t========================================\n\n";
       	  	cout<<"\n \t\t\t  * * * * * * * * * * * * * * * ";
-      	  	cout<<"\n\t\t\t  1. SET PRICE";
+      	  	cout<<"\n\t\t\t  1. APPROVE USER";
       	  	cout<<"\n\t\t\t  2. START BID";
       	  	cout<<"\n\t\t\t  3. CLOSE BID";
       	  	cout<<"\n\t\t\t  4. Back";
@@ -492,7 +534,7 @@ int main()
       	  	
       	  	 case 1:
       	  	      {
-      	  	      a.set_price(c,d);
+      	  	      a.approve_user(b,s,d);
       	  	       break;
       	  	      
       	  	      }
@@ -544,13 +586,11 @@ int main()
       	  	      		break;      	  	      
       	  	      	}
       	  	 	case 2:
-      	  	      	{	 
-      	  	      		while(k!=5)
-        				 {
-        				 	char i[20];
-        					cout<<"Enter the Buyer e-mail : ";
-        					cin>>i; 
-        					b=d.fetch_Buyer(i);
+      	  	      	{	char i[20];
+        			cout<<"Enter the Buyer e-mail : ";
+        			cin>>i; 
+        			b=d.fetch_Buyer(i); 
+      	  	      		do{	
             					cout<<"\n";
             					cout<<"\n";
             					cout<<"\n \t\t\t========================================\n";
@@ -580,6 +620,7 @@ int main()
       	  	      						char i[20];
       	  	      						cout<<"Enter the Commodity id : ";
         							cin>>i; 
+        							
         							c=d.fetch_Commodity(i);
         							c.display_Commodity();
       	  	       					break;
@@ -589,34 +630,48 @@ int main()
       	  	       					char j[20];
       	  	      						cout<<"Enter the Commodity id : ";
         							cin>>j; 
-        							c=d.fetch_Commodity(i);  
-        							float p=c.get_price();
-        							float bid;
-        							cout<<"Enter your bid : ";
-        							cin>>bid;
-        							if(p<bid){
-        							//call bid fn================================================================================================================
-        							}   	
-        							else cout<<"Please enter a value greater than current price";  	       
+        							c=d.fetch_Commodity(j);  
+        							bool x=c.state();
+        							if(x==1){
+        								float p=c.get_price();
+        								float bid;
+        								cout<<p<<" is the current value of item"<<endl;
+        								cout<<"\nEnter your bid : ";
+        								cin>>bid;
+        								if(p<bid){
+        									if(b.get_balance()>=bid){
+        										c.accept_bid(bid,i);
+        										d.update_Commodity(c);
+        									}
+        									else cout<<"Buyer does not have sufficient balance"<<endl;
+        								}   	
+        								else cout<<"Please enter a value greater than current price"<<endl;  
+        							}	       
+        							else cout<<"Bidding is closed for this commodity"<<endl; 
       	  	       					break;
       	  	      
       	  	        				}
-      	  	        				case 4:{
+      	  	        			case 4:{
       	  	       					b.set_accept();
       	  	       					break;      	  	      
       	  	        				}
-      	  	        				case 5:
+      	  	        			case 5:
+      	  	        			{
       	  	        					break;
-      	  	        				
+      	  	        					}      	  	        				
              				}      	  	      
-      	  	      	}
+      	  	      	}while(j!=5);
       	  	      	break;
       	  	      	}
-      	  	 	case 3:
+      	  	 	case 3:{
       	  	        	break;
+      	  	        	}
           }
-          break;
+          
          }
+         break;
+         }
+         
         case 3:
         {
          do
@@ -650,7 +705,7 @@ int main()
         			cout<<"Enter the Seller e-mail : ";
         			cin>>i; 
         			s=d.fetch_Seller(i); 
-      	  	      		while(j!=4)
+      	  	      		while(k!=4)
         				 {
             				cout<<"\n";
             				cout<<"\n";
@@ -665,9 +720,9 @@ int main()
       						cout<<"\n\t\t\t   * * * * * * * * * * * * * * *\n";
       						cout<<"\n \t\t\t========================================";
       						cout<<"\n\t\t\t Enter Your choice  :  ";
-      						cin>>j;
+      						cin>>k;
       						cout<<"\n";
-      						switch(j)      						
+      						switch(k)      						
       						{
       							case 1:{
       								 cout<<"\n Link your bank account to become a part of bidding process....\n";      
@@ -676,12 +731,13 @@ int main()
       	 							 break;      	  	      
       	  	      					}
       	  	 					case 2:{
-      	  	 						//add commodity fn here===========================================================================================
+      	  	 						c.get_function();
+      	  	 						d.add_Commodity(c);
       	  	       					break;
-      	  	      
+      	  	   
       	  	      					}
       	  	 					case 3:{
-      	  	       					       	  	       
+      	  	       					s.set_accept();   	  	       
       	  	       					break;
       	  	      
       	  	        				}
@@ -714,8 +770,7 @@ int main()
                break;
         } 
       }
-    }
-  }      
+    }     
   cout<<"\n";
   return 0;
 } 
