@@ -83,6 +83,7 @@ class Commodity{
 		}
 		
 		float get_price(){return price;}
+		char* get_id(){return c_id;}
 		
 
 };
@@ -123,7 +124,7 @@ class User{
 		}
                 
                 void activate(){active=true;}
-                
+                char* get_email(){return email;}
                 void link_bankAccnt()
 		{
 			int c;
@@ -271,7 +272,7 @@ public:
 			
 			
 			
-	void add_Seller(Seller s){	// function to add seller details by creating record and key
+	void add_Seller(Seller s){	// function to add seller details by creating record and key.
 			Seller::create_key(s.email);
 			Seller::create_record(s);
 			int ret_val=gdbm_store(dbf,key,record,GDBM_INSERT);
@@ -279,7 +280,7 @@ public:
 			else cout<<"\n Seller added Successfully \n";
 	}
 		
-		// function to fetch seller details by creating a new key in the database aswell as creating the records with the corresponding key
+		// function to fetch seller details by creating a new key in the database aswell as creating the records with the corresponding key.
 		
 	Seller fetch_Seller(const char *email){
 			Seller::create_key(email);
@@ -296,7 +297,7 @@ public:
 			return Seller(n,c,f,a,b,g,f,ac);
 	}
 		
-		// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key
+		// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key.
 		
 	void update_Seller(Seller s){
 			Seller::create_key(s.email);
@@ -391,18 +392,25 @@ class Admin {
 			cout<<"2.Seller"<<endl;
 			int x;
 			cin>>x;
-	       	char i[20];
-      	  		cout<<"\nEnter the User id : ";
-      	  		cin>>i;
       	  		if(x==1){
-      	  			b=d.fetch_Buyer(i);
-      	  			b.activate();
-      	  			d.update_Buyer(b);
+      	  			char i[20];
+      	  			cout<<"\nEnter the User id : ";
+      	  			cin>>i;
+      	  			Buyer b=d.fetch_Buyer(i);
+      	  			if(strcmp(i,b.email)==0){
+      	  				b.activate();
+      	  				d.update_Buyer(b);
+      	  			}	
       	  		}
       	  		else{
-      	  			s=d.fetch_Seller(i);
-      	  			s.activate();
-      	  			d.update_Seller(s);
+      	  			char i1[20];
+      	  			cout<<"\nEnter the User id : ";
+      	  			cin>>i1;
+      	  			Seller s=d.fetch_Seller(i1);
+      	  			if(strcmp(i1,s.email)==0){
+      	  				s.activate();
+      	  				d.update_Seller(s);
+      	  			}
       	  		}
       	  	    	
       	  	     	
@@ -412,15 +420,17 @@ class Admin {
       	  		cout<<"\nEnter the Commodity id : ";
       	  		cin>>i;
       	  		float p;
-	       	cout<<"\nEnter the Commodity price : ";
-      	  	    	cin>>p;
-      	  		cout<<"\n";
       	  		c=d.fetch_Commodity(i);
-      	  		c.set_price(p);
-      	  	    	bool j=c.activate();
-      	  	     	d.update_Commodity(c);
-      	  	     	if(j==true){cout<<"Bidding started"<<endl;}
-      	  	     	else cout<<"Bidding has not start"<<endl;
+      	  		if(strcmp(i,c.c_id)==0){
+      	  			cout<<"\nEnter the Commodity price : ";
+      	  	    		cin>>p;
+      	  			cout<<"\n";
+      	  			c.set_price(p);
+      	  	    		bool j=c.activate();
+      	  	     		d.update_Commodity(c);
+      	  	     		if(j==true){cout<<"Bidding started"<<endl;}
+      	  	     		else cout<<"Bidding has not start"<<endl;
+      	  	     	}
 	       }
 	       void close_bid(Commodity c,DBMS d){
 	       	char i[20];
@@ -428,25 +438,27 @@ class Admin {
       	  		cin>>i;
       	  		cout<<"\n";
       	  		c=d.fetch_Commodity(i);
-      	  		c.close_bid();
-      	  		if(c.hbidder!="nil"){
-      	  			Buyer b=d.fetch_Buyer(c.hbidder);
-      	  			Seller s=d.fetch_Seller(c.s_email);
-      	  			s.update_rating();
-      	  			b.update_rating();
-      	  	     		if(b.accept==true && s.accept==true){
-      	  	     			int com=c.price/200;
-      	  	     			cout<<"A commission of Rs"<<com<<" taken by both parties. "<<endl;
-      	  	     			b.balance=b.balance-c.price-com;
-      	  	     			s.balance=s.balance+c.price-com;
+      	  		if(strcmp(i,c.c_id)==0){
+      	  			c.close_bid();
+      	  			if(c.hbidder!="nil"){
+      	  				Buyer b=d.fetch_Buyer(c.hbidder);
+      	  				Seller s=d.fetch_Seller(c.s_email);
+      	  				s.update_rating();
+      	  				b.update_rating();
+      	  	     			if(b.accept==true && s.accept==true){
+      	  	     				int com=c.price/200;
+      	  	     				cout<<"A commission of Rs"<<com<<" taken by both parties. "<<endl;
+      	  	     				b.balance=b.balance-c.price-com;
+      	  	     				s.balance=s.balance+c.price-com;
       	  	     			
+      	  	     			}
+      	  	     			else cout<<"item was not sold Bidding closed"<<endl;
+      	  	     			d.update_Commodity(c);
+      	  	     			d.update_Buyer(b);
+      	  	     			d.update_Seller(s);
       	  	     		}
-      	  	     		else cout<<"item was not sold Bidding closed"<<endl;
-      	  	     		d.update_Commodity(c);
-      	  	     		d.update_Buyer(b);
-      	  	     		d.update_Seller(s);
-      	  	     	}
-      	  	     	else cout<<"No one bidded on the item, item NOT SOLD"<<endl;	
+      	  	     		else cout<<"No one bidded on the item, item NOT SOLD"<<endl;
+      	  	     	}	
       	  	     	
 	       }
 };
@@ -557,8 +569,8 @@ int main()
         			cout<<"Enter the Buyer e-mail : ";
         			cin>>i; 
         			b=d.fetch_Buyer(i);
-        			
-      	  	      		do{	
+        			if(strcmp(i,b.get_email())==0){
+      	  	      			do{	
             					cout<<"\n";
             					cout<<"\n";
             					cout<<"\n \t\t\t========================================\n";
@@ -588,9 +600,8 @@ int main()
       	  	      						char i[20];
       	  	      						cout<<"Enter the Commodity id : ";
         							cin>>i; 
-        							
         							c=d.fetch_Commodity(i);
-        							c.display_Commodity();
+        							if(strcmp(i,c.get_id())==0){c.display_Commodity();}
       	  	       					break;
       	  	      
       	  	      					}
@@ -598,24 +609,26 @@ int main()
       	  	       					char j[20];
       	  	      						cout<<"Enter the Commodity id : ";
         							cin>>j; 
-        							c=d.fetch_Commodity(j);  
-        							bool x=c.state();
-        							if(x==1){
-        								float p=c.get_price();
-        								float bid;
-        								cout<<p<<" is the current value of item"<<endl;
-        								cout<<"\nEnter your bid : ";
-        								cin>>bid;
-        								if(p<bid){
-        									if(b.get_balance()>=bid){
+        							c=d.fetch_Commodity(j); 
+        							if(strcmp(j,c.get_id())==0){
+        								bool x=c.state();
+        								if(x==1){
+        									float p=c.get_price();
+        									float bid;
+        									cout<<p<<" is the current value of item"<<endl;
+        									cout<<"\nEnter your bid : ";
+        									cin>>bid;
+        									if(p<bid){
+        										if(b.get_balance()>=bid){
         										c.accept_bid(bid,i);
         										d.update_Commodity(c);
-        									}
-        									else cout<<"Buyer does not have sufficient balance"<<endl;
-        								}   	
-        								else cout<<"Please enter a value greater than current price"<<endl;  
-        							}	       
-        							else cout<<"Bidding is closed for this commodity"<<endl; 
+        										}
+        										else cout<<"Buyer does not have sufficient balance"<<endl;
+        									}   	
+        									else cout<<"Please enter a value greater than current price"<<endl;  
+        								}	       
+        								else cout<<"Bidding is closed for this commodity"<<endl; 
+        							}
       	  	       					break;
       	  	      
       	  	        				}
@@ -629,6 +642,7 @@ int main()
       	  	        					}      	  	        				
              				}      	  	      
       	  	      	}while(j!=5);
+      	  	      	}
       	  	      	break;
       	  	      	}
       	  	 	case 3:{
@@ -672,9 +686,9 @@ int main()
       	  	      	{	char i[20];
         			cout<<"Enter the Seller e-mail : ";
         			cin>>i; 
-        			s=d.fetch_Seller(i); 
-      	  	      		while(k!=4)
-        				 {
+        			s=d.fetch_Seller(i);
+        			if(strcmp(i,s.get_email())==0){
+      	  	      		     do{
             				cout<<"\n";
             				cout<<"\n";
             				cout<<"\n \t\t\t========================================\n";
@@ -713,7 +727,9 @@ int main()
       	  	       				break;      	  	      
       	  	        				
              					}
-             				}
+             				}while(k!=4);
+             			    }
+             			    break;
              			}
       	  	 	case 3:
       	  	        	break; 
