@@ -1,4 +1,4 @@
-//header files are used for implementing in-build functions
+// header files are used for implementing in-build functions
 #include<iostream>
 #include<stdio.h>
 #include<gdbm.h>
@@ -6,7 +6,7 @@
 #include<stdlib.h>
 using namespace std;
 
-char key_buffer[400],record_buffer[2048];// key_buffer to store key values( which we set as key ) and record buffer to store record of the class in the dbms
+char key_buffer[400],record_buffer[2048];	// key_buffer to store key values( which we set as key ) and record buffer to store record of the class in the dbms
 datum key,record;
 
 class Commodity      //commidity class starts here
@@ -47,7 +47,7 @@ class Commodity      //commidity class starts here
 			 active=a;
                 }
                 
-		void set_price(float p){price=p;} 		// this fuction makes admin to set the minimum price inorder to start thebidding 
+		void set_price(float p){price=p;} 		// this fuction makes admin to set the minimum price inorder to start the bidding 
 		
                static void create_key(const char *c_id)		// to create  key with commodity id
                {
@@ -65,17 +65,17 @@ class Commodity      //commidity class starts here
                         record.dsize=strlen(record_buffer);
                         return;
                 }
-                
-		bool state(){return active;}		// here state function returns active which denotes whether the admin have authorized or not
+                // here state function returns current state of the commodity which denotes whether the commodity have been closed or open for bidding
+		bool state(){return active;}	
 		
-                void accept_bid(float p,char* i){
+                void accept_bid(float p,char* i){ 				// funtion to accept bid
 			price=p;
 			strcpy(hbidder,i);
 		}
 		
-		void close_bid(){active=false;}
+		void close_bid(){active=false;}					// function to close bid 
 		
-		bool activate(){active=true;return active;}
+		bool activate(){active=true;return active;}		// function to start the bidding and this is called by the admin		
 		
 		void display_Commodity(){
 			cout<<"COMMODITY ID : "<<c_id<<endl;
@@ -85,7 +85,7 @@ class Commodity      //commidity class starts here
         		cout<<"status : "<<active<<endl;
 		}
 		
-		float get_price(){return price;}
+		float get_price(){return price;}		// to return price
 		char* get_id(){return c_id;}			// this funtion return's commodity id to the main function
 		
 
@@ -127,7 +127,7 @@ class User				// user class starts here
 			return;
 		}
                 
-                void activate(){active=true;}
+                void activate(){active=true;}						// to approve the user
                 char* get_email(){return email;}			// return's email id 
                 void link_bankAccnt()  				// function to link bank with the trading account
 		{
@@ -138,7 +138,7 @@ class User				// user class starts here
 			return ;
 		}
 		
-		void set_accept(){
+		void set_accept(){						// to decide whether the user want to accept the winning's or not
 			cout<<"Will you accept the outcome"<<endl;
 			cout<<"1.YES"<<endl;
 			cout<<"2.NO"<<endl;
@@ -148,7 +148,7 @@ class User				// user class starts here
 			else accept=false;
 		}
 		
-		bool get_accept(void){return accept;}
+		bool get_accept(void){return accept;}		// 
 		
                 
 };		// user class  ends here
@@ -245,7 +245,7 @@ class Buyer:public User			// buyer class starts here
 		}
 		
 		
-		void update_rating()									
+		void update_rating()	// function to blacklist the buyer and this is done by admin 								
 		{
 		  active=accept;
 		}
@@ -391,7 +391,7 @@ public:
 
 class Admin {
 	public:
-	       void approve_user(Buyer b,Seller s,DBMS d){
+	       void approve_user(Buyer b,Seller s,DBMS d){ 
 	       	cout<<"Select the type of user"<<endl;
 			cout<<"1.Buyer"<<endl;
 			cout<<"2.Seller"<<endl;
