@@ -1,3 +1,4 @@
+//header files are used for implementing in-build functions
 #include<iostream>
 #include<stdio.h>
 #include<gdbm.h>
@@ -5,21 +6,22 @@
 #include<stdlib.h>
 using namespace std;
 
-char key_buffer[400],record_buffer[2048];
+char key_buffer[400],record_buffer[2048];// key_buffer to store key values( which we set as key ) and record buffer to store record of the class in the dbms
 datum key,record;
 
-class Commodity{
+class Commodity      //commidity class starts here
+{
         protected:
                 char cname[50],s_email[50],c_id[20],hbidder[50];
                 int weight;
                 float price;
                 bool active=false;
         public:
-                friend class DBMS;
-                friend class Admin;
-                Commodity(){}
-                void get_function()
-                {
+                friend class DBMS;	// here dbms class has been declareed as friend of this class 
+                friend class Admin;	// here admin class has been declareed as friend of this class 
+                Commodity(){}	// constructor
+                void get_function()		// to get the details of the commodity and the name of the seller
+		{
                         cout<<"Enter seller email:"<<endl;
                         cin>>s_email;
                         cout<<"Enter name of commodity:"<<endl;
@@ -34,7 +36,8 @@ class Commodity{
                         cout<<"\n";
                 }
                 
-                Commodity(const char *cn, const char *sm,const char *id,int w,float p,bool a,const char *h){
+                Commodity(const char *cn, const char *sm,const char *id,int w,float p,bool a,const char *h)  //parameterized constructor
+		{
                         strcpy(cname,cn);
 			 strcpy(s_email,sm);
                         strcpy(c_id,id);
@@ -44,9 +47,9 @@ class Commodity{
 			 active=a;
                 }
                 
-		void set_price(float p){price=p;}
+		void set_price(float p){price=p;} 		// this fuction makes admin to set the minimum price inorder to start thebidding 
 		
-               static void create_key(const char *c_id)
+               static void create_key(const char *c_id)		// to create  key with commodity id
                {
                         strcpy(key_buffer,c_id);
                         key.dptr=key_buffer;
@@ -55,7 +58,7 @@ class Commodity{
 
                 }
                 
-                static void create_record(Commodity c)
+                static void create_record(Commodity c)			// to create record for the corresponding key 
                 {
                         sprintf(record_buffer,"%s %s %s %d %f %d %s",c.cname,c.s_email,c.c_id,c.weight,c.price,c.active,c.hbidder);
                         record.dptr=record_buffer;
@@ -63,7 +66,7 @@ class Commodity{
                         return;
                 }
                 
-		bool state(){return active;}
+		bool state(){return active;}		// here state function returns active which denotes whether the admin have authorized or not
 		
                 void accept_bid(float p,char* i){
 			price=p;
@@ -83,16 +86,17 @@ class Commodity{
 		}
 		
 		float get_price(){return price;}
-		char* get_id(){return c_id;}
+		char* get_id(){return c_id;}			// this funtion return's commodity id to the main function
 		
 
-};
+};			// commidity class ends here
 
 
 
 
 
-class User{
+class User				// user class starts here
+{
 	protected:
 		char name[25],email[50];
 		int age;
@@ -101,7 +105,7 @@ class User{
 		bool accept=true;
 		bool active=false;
 	public:
-		void get_function()
+		void get_function()      // function to get the general details of buyer and seller 
                 {
                         cout<<"Enter your name:"<<endl;
                         cin>>name;
@@ -115,7 +119,7 @@ class User{
                         cout<<"\n";
                 }	
                 
-                static void create_key(const char *email_id)  		// to create key
+                static void create_key(const char *email_id)  		// here key is created using  seller's and buyer's email id
 		{
 			strcpy(key_buffer,email_id);
 			key.dptr=key_buffer;
@@ -124,8 +128,8 @@ class User{
 		}
                 
                 void activate(){active=true;}
-                char* get_email(){return email;}
-                void link_bankAccnt()
+                char* get_email(){return email;}			// return's email id 
+                void link_bankAccnt()  				// function to link bank with the trading account
 		{
 			int c;
 			printf("\n Enter amount to be credited to your account  : ");
@@ -147,7 +151,7 @@ class User{
 		bool get_accept(void){return accept;}
 		
                 
-};
+};		// user class  ends here
 
 
 
@@ -175,7 +179,7 @@ class Seller:public User				                                                    
 	
 		
 		
-		static void create_record(Seller e)					// to create record
+		static void create_record(Seller e)					// to create record of seller
 		{
 			sprintf(record_buffer," %s %s %ld %d %f %d %f %d",e.name,e.email,e.phone,e.age,e.rating,e.accept,e.balance,e.active);
 			record.dptr=record_buffer;
@@ -211,27 +215,28 @@ class Seller:public User				                                                    
 
 
 
-class Buyer:public User
+class Buyer:public User			// buyer class starts here
 {
     	public:
 		friend class DBMS;
 		friend class Admin;
-		Buyer(){}
-		Buyer(const char *n,long unsigned ph,const char *e,float b,bool a,bool i,int g){   
-		       strcpy(name,n);
-               	strcpy(email,e);
-               	phone=ph;
-               	age=g;
-               	balance=b;
-               	accept=a;
-               	active=i;
+		Buyer(){}			//constructor
+		Buyer(const char *n,long unsigned ph,const char *e,float b,bool a,bool i,int g)	// parameterized constructor
+		{   
+		        strcpy(name,n);
+               		strcpy(email,e);
+               		phone=ph;
+               		age=g;
+               		balance=b;
+               		accept=a;
+               		active=i;
          	}
 		
-        	~Buyer(){}
-        	float get_balance(){return balance;}
+        	~Buyer(){}    				// destructor
+        	float get_balance(){return balance;}			// return's balance amount in the account
 		
 
-    	   	static void create_record(Buyer b)
+    	   	static void create_record(Buyer b)       			// to create record of buyer
        	{
           		sprintf(record_buffer,"%s %ld %s %f %d %d %d",b.name,b.phone,b.email,b.balance,b.accept,b.active,b.age);
           		record.dptr=record_buffer;
@@ -246,7 +251,7 @@ class Buyer:public User
 		}
 		
 		
-};
+};			// buyer class ends here
 
 
 
@@ -464,7 +469,8 @@ class Admin {
 };
 
 
-int main()
+
+int main()				// main section starts here
 {
 	DBMS d("db.trading");			// d is an object of class dbms 
 	int ch,m,r,e,j,k;
@@ -757,4 +763,4 @@ int main()
     }     
   cout<<"\n";
   return 0;
-} 
+} 						// main section ends here
