@@ -148,7 +148,7 @@ class User				// user class starts here
 			else accept=false;
 		}
 		
-		bool get_accept(void){return accept;}		// 
+		bool get_accept(void){return accept;}		// this return's a bool value
 		
                 
 };		// user class  ends here
@@ -161,8 +161,8 @@ class Seller:public User				                                                    
 		float rating=5;
 	public:	
 		Seller(){}					                                //constructor
-		friend class DBMS;
-		friend class Admin;
+		friend class DBMS;				// here dbms class has been declareed as friend of this class
+		friend class Admin;				// here admin class has been declareed as friend of this class
 		
 		Seller(const char* n,const char* c,long int f,int a,float b,bool g,float h,bool ac)			//parameterized constructor 
 		{
@@ -266,7 +266,7 @@ protected:
 	GDBM_FILE dbf=NULL;	                                                       // gdbm file pointer dbfs		
 public:	
 	DBMS(const char *db_name){ 				                                 //db_name is db.sellbook
-		dbf=gdbm_open(db_name,0,GDBM_WRCREAT,0666,NULL);					//creating database
+		dbf=gdbm_open(db_name,0,GDBM_WRCREAT,0666,NULL);		//creating database
 		if(dbf==NULL){
 			  cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
 			  exit(1);
@@ -277,7 +277,7 @@ public:
 			
 			
 			
-	void add_Seller(Seller s){	// function to add seller details by creating record and key.
+	void add_Seller(Seller s){	// function to add seller details by creating record and key
 			Seller::create_key(s.email);
 			Seller::create_record(s);
 			int ret_val=gdbm_store(dbf,key,record,GDBM_INSERT);
@@ -285,8 +285,7 @@ public:
 			else cout<<"\n Seller added Successfully \n";
 	}
 		
-		// function to fetch seller details by creating a new key in the database aswell as creating the records with the corresponding key.
-		
+		// function to fetch seller details by creating a new key in the database as well as creating the records with the corresponding key	
 	Seller fetch_Seller(const char *email){
 			Seller::create_key(email);
 			datum record=gdbm_fetch(dbf,key);
@@ -302,9 +301,10 @@ public:
 			return Seller(n,c,f,a,b,g,f,ac);
 	}
 		
-		// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key.
+	// function to update seller details by overwriting the existing key with updated details and storing it in the database with the corresponding key
 		
-	void update_Seller(Seller s){
+	void update_Seller(Seller s)
+	{
 			Seller::create_key(s.email);
 			Seller::create_record(s);
 			int ret_val=gdbm_store(dbf,key,record,GDBM_REPLACE);
@@ -316,13 +316,15 @@ public:
 	
 	
 	     
-	void add_Buyer(Buyer b){
+	void add_Buyer(Buyer b)					// function to add buyer details by creating record and key
+	{
 			Buyer::create_key(b.email);
 			Buyer::create_record(b);
             		int ret_val=gdbm_store(dbf,key,record,GDBM_INSERT);
             		if(ret_val)cout<<"\n GDBM error : "<<gdbm_strerror(gdbm_errno)<<endl;
             		else cout<<"\n Buyer added successfully \n";
         }
+	// function to fetch buyer details by creating a new key in the database as well as creating the records with the corresponding key
      	Buyer fetch_Buyer(const char *email){
 	 		Buyer::create_key(email);
             		datum record=gdbm_fetch(dbf,key);
@@ -339,8 +341,10 @@ public:
             		sscanf(record_buffer,"%s %ld %s %f %d %d %d",n,&ph,e,&b,&a,&i,&g);
             		return Buyer(n,ph,e,b,a,i,g);
 	}
-		
-	void update_Buyer(Buyer b){
+	
+	// function to update buyer details by overwriting the existing key with updated details and storing it in the database with the corresponding key	
+	void update_Buyer(Buyer b)		
+	{
 			Buyer::create_key(b.email);
 			Buyer::create_record(b);
             		int ret_val=gdbm_store(dbf,key,record,GDBM_REPLACE);
@@ -352,13 +356,15 @@ public:
 		
 		
 		
-	void add_Commodity(Commodity c){
+	void add_Commodity(Commodity c)				// function to add commodity details by creating record and key
+	{
                 	 Commodity::create_key(c.c_id);
                 	 Commodity::create_record(c);
                         int ret_val=gdbm_store(dbf,key,record,GDBM_INSERT);
                         if(ret_val)cout<<"GDBM Error: "<<gdbm_strerror(gdbm_errno)<<endl;
                         else cout<<"Commodity details added successfully"<<endl;
        }
+	// function to fetch commodity details by creating a new key in the database as well as creating the records with the corresponding key
        Commodity fetch_Commodity(const char *c_id){
                         Commodity::create_key(c_id);
                         datum record=gdbm_fetch(dbf,key);
@@ -372,13 +378,16 @@ public:
                         sscanf(record_buffer,"%s %s %s %d %f %d %s",cn,sm,id,&w,&p,&a,h);
                         return Commodity(cn,sm,id,w,p,a,h);
        }
+	// function to selete detail's of the commodity
        void delete_Commodity(const char *c_id){
                         Commodity::create_key(c_id);
                         int ret_val=gdbm_delete(dbf,key);
                         if(ret_val)cout<<"GDBM Error: "<<gdbm_strerror(gdbm_errno)<<endl;
                         else cout<<"Commodity details successfully deleted"<<endl;
        }
-       void update_Commodity(Commodity c){
+	// function to update commodity details by overwriting the existing key with updated details and storing it in the database with the corresponding key
+       void update_Commodity(Commodity c)
+       {
 			Commodity::create_key(c.c_id);
 			Commodity::create_record(c);                
             		int ret_val=gdbm_store(dbf,key,record,GDBM_REPLACE);
@@ -389,7 +398,8 @@ public:
                      // dbms class ends here
 
 
-class Admin {
+class Admin 						// admin class satrts here
+{
 	public:
 	       void approve_user(Buyer b,Seller s,DBMS d){ 
 	       	cout<<"Select the type of user"<<endl;
