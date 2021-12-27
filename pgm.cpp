@@ -8,7 +8,7 @@ using namespace std;
 
 // key_buffer to store key values( which we set as key ) and record buffer to store record of the class in the dbms
 
-char key_buffer[400],record_buffer[2048];	
+char key_buffer[800],record_buffer[4096];	
 datum key,record;
 
 class Commodity      //commidity class starts here
@@ -120,9 +120,9 @@ class User				// user class starts here
                         cin>>name;
                         cout<<"\n Enter your E-mail   		 :	";
                         cin>>email;
-                        cout<<"\n Enter your phone number     	 :  ";
+                        cout<<"\n Enter your phone number     	 :      ";
                         cin>>phone;
-                        cout<<"\n Enter your age			 :  ";
+                        cout<<"\n Enter your age			 :      ";
                         cin>>age;
                         balance=0;
                         //cout<<"\n";
@@ -275,7 +275,8 @@ protected:
 	                                                      // gdbm file pointer dbfs		
 public:	
 
-	DBMS(const char *db_name){ 				                                 //db_name is db.sellbook
+	DBMS(){ 
+		char db_name[11]="db.trading";				                                 //db_name is db.sellbook
 		dbf=gdbm_open(db_name,0,GDBM_WRCREAT,0666,NULL);		//creating database
 		if(dbf==NULL){
 			  cout<<"\n GDBM Error  :  "<<gdbm_strerror(gdbm_errno)<<endl;
@@ -405,12 +406,13 @@ public:
                      // dbms class ends here
 
 
-class Admin 						// admin class satrts here
+class Admin 						// admin class starts here
 {
 	public:
-	       void approve_user(Buyer b,Seller s,DBMS d)		// function to approve the user
+	       void approve_user()		// function to approve the user
 	       {
-	        int x;
+	        	int x;
+	        	DBMS d;
 	       	cout<<"\n Select the type of user"<<endl;
 			cout<<"\t 1.Buyer"<<endl;
 			cout<<"\t 2.Seller"<<endl;
@@ -419,7 +421,7 @@ class Admin 						// admin class satrts here
       	  		if(x==1)
       	  		{
       	  			char i3[20];
-      	  			cout<<"\n Enter the User id  :  ";
+      	  			cout<<"\n Enter the User id   :  ";
       	  			cin>>i3;
       	  			Buyer b=d.fetch_Buyer(i3);
       	  			if(strcmp(i3,b.email)==0){
@@ -430,7 +432,7 @@ class Admin 						// admin class satrts here
       	  		else
       	  		{
       	  			char i1[20];
-      	  			cout<<"\n Enter the User id  :  ";
+      	  			cout<<"\n Enter the User id   :  ";
       	  			cin>>i1;
       	  			Seller s=d.fetch_Seller(i1);
       	  			if(strcmp(i1,s.email)==0){
@@ -439,47 +441,49 @@ class Admin 						// admin class satrts here
       	  			}
       	  		}      	  	    	      	  	     	
 	       }
-	       void start_bid(Commodity c,DBMS d)			// function to start the bidding
+	       void start_bid()			// function to start the bidding
 	       {	       
+	       	DBMS d;
 	       	char i[20];
       	  		cout<<"\n Enter the Commodity id  :  ";
       	  		cin>>i;
       	  		float p;
-      	  		c=d.fetch_Commodity(i);
-      	  		if(strcmp(i,c.c_id)==0){
+      	  		Commodity c1=d.fetch_Commodity(i);
+      	  		if(strcmp(i,c1.c_id)==0){
       	  			cout<<"\n Enter the Commodity price  :  ";
       	  	    		cin>>p;
       	  			cout<<"\n";
-      	  			c.set_price(p);
-      	  	    		bool j=c.activate();
-      	  	     		d.update_Commodity(c);
+      	  			c1.set_price(p);
+      	  	    		bool j=c1.activate();
+      	  	     		d.update_Commodity(c1);
       	  	     		if(j==true){cout<<"\n Bidding started "<<endl;}
       	  	     		else cout<<"\n Bidding has not start "<<endl;
       	  	     	}
 	       }
-	       void close_bid(Commodity c,DBMS d)			// function to close the bidding
+	       void close_bid()			// function to close the bidding
 	       {
 	       	char i[20];
+	       	DBMS d;
       	  		cout<<"\n Enter the Commodity id  :  ";
       	  		cin>>i;
       	  		cout<<"\n";
-      	  		c=d.fetch_Commodity(i);
-      	  		if(strcmp(i,c.c_id)==0){
-      	  			c.close_bid();
-      	  			if(c.hbidder!="nil"){
-      	  				Buyer b=d.fetch_Buyer(c.hbidder);
-      	  				Seller s=d.fetch_Seller(c.s_email);
+      	  		Commodity c1=d.fetch_Commodity(i);
+      	  		if(strcmp(i,c1.c_id)==0){
+      	  			c1.close_bid();
+      	  			if(strcmp(c1.hbidder,"nil")!=0){
+      	  				Buyer b=d.fetch_Buyer(c1.hbidder);
+      	  				Seller s=d.fetch_Seller(c1.s_email);
       	  				s.update_rating();
       	  				b.update_rating();
       	  	     			if(b.accept==true && s.accept==true){
-      	  	     				int com=c.price/200;
+      	  	     				int com=c1.price/200;
       	  	     				cout<<"\n A commission of Rs"<<com<<" taken by both parties "<<endl;
-      	  	     				b.balance=b.balance-c.price-com;
-      	  	     				s.balance=s.balance+c.price-com;
+      	  	     				b.balance=b.balance-c1.price-com;
+      	  	     				s.balance=s.balance+c1.price-com;
       	  	     			
       	  	     			}
       	  	     			else cout<<"\n Item was not sold Bidding closed "<<endl;
-      	  	     			d.update_Commodity(c);
+      	  	     			d.update_Commodity(c1);
       	  	     			d.update_Buyer(b);
       	  	     			d.update_Seller(s);
       	  	     		}
@@ -493,14 +497,11 @@ class Admin 						// admin class satrts here
 
 int main()				// main section starts here
 {
-	DBMS d("db.trading");			// d is an object of class dbms 
 	int ch,m,r,e,j,k;
-    	Seller s;
-    	Buyer b;
-    	Commodity c;
     	Admin a;
     	const char *sna,*email;
     	char *mail;	
+    	m:
     	while(ch!=4)					//display control
     	{       
       		cout<<"\n \t\t\t========================================\n";
@@ -545,21 +546,21 @@ int main()				// main section starts here
       	  	 case 1:
       	  	      {
       	  	      		
-      	  	      		a.approve_user(b,s,d);
+      	  	      		a.approve_user();
       	  	      		
       	  	       	break;     	  	      
       	  	      }
       	  	 case 2:
       	  	      {
       	  	      		
-      	  	      		a.start_bid(c,d);
+      	  	      		a.start_bid();
       	  	      		
       	  	       	break;      	  	      
       	  	      }
       	  	 case 3:
       	  	      {	
       	  	      		
-      	  	       	a.close_bid(c,d);
+      	  	       	a.close_bid();
       	  	       	
       	  	       	break;
       	  	       }
@@ -577,7 +578,7 @@ int main()				// main section starts here
        	do
          {
          	
-               cout<<"\n \t\t\t========================================\n";
+            cout<<"\n \t\t\t========================================\n";
       		cout<<"\n\t\t\t  WELCOME TO COMMIDITY TRADING CENTER  \n";
      		cout<<"\n \t\t\t========================================\n\n";
       		cout<<"\n \t\t\t  * * * * * * * * * * * * * * * ";
@@ -593,20 +594,30 @@ int main()				// main section starts here
       		switch(r)
       		{
       			case 1:
-      				{      	  	
-      	 				cout<<"\n Enter the details as a buyer ...........\n";  
+      				{      	  			
+      						DBMS d;
+      	 					cout<<"\n Enter the details as a buyer ...........\n";  
+      	 					Buyer b;
 	 			   		b.get_function();              			
 						d.add_Buyer(b);
 						cout<<"\n";             	      
       	  	      		break;      	  	      
       	  	      	}
       	  	 	case 2:
-      	  	      	{	char i[20];
+      	  	      	{		
+      	  	      			DBMS d;
+      	  	      			char i[20];
         				cout<<"\n Enter the Buyer e-mail : ";
         				cin>>i; 
-        				b=d.fetch_Buyer(i);
+        				Buyer b=d.fetch_Buyer(i);
         				if(strcmp(i,b.get_email())==0){
-        				  if(b.get_status()==1){
+        				  if(b.get_status()==0)
+        				 	{       				
+        				  	cout<<"\n User not approved by Admin"<<endl;
+        				  	goto m;
+        				  	break;    				  
+        				  	}
+        				  else{
       	  	      			     do{
       	  	      			     		
             					cout<<"\n";
@@ -629,7 +640,7 @@ int main()				// main section starts here
       						switch(j)      						
       						{
       							case 1:{     						  
-      										cout<<"\n Link your bank account to become a part of bidding process...\n";
+      											cout<<"\n Link your bank account to become a part of bidding process...\n";
   			   								b.link_bankAccnt();
 											d.update_Buyer(b);   	  	
       	 									break;      	  	      
@@ -638,7 +649,7 @@ int main()				// main section starts here
       	  	      						char i[20];
       	  	      						cout<<"\n Enter the Commodity id : ";
         								cin>>i; 
-        								c=d.fetch_Commodity(i);
+        								Commodity c=d.fetch_Commodity(i);
         								if(strcmp(i,c.get_id())==0)
         								{
         								c.display_Commodity();
@@ -649,14 +660,14 @@ int main()				// main section starts here
       	  	       					char j[20];
       	  	      						cout<<"\n Enter the Commodity id : ";
         							cin>>j; 
-        							c=d.fetch_Commodity(j); 
+        							Commodity c=d.fetch_Commodity(j); 
         							if(strcmp(j,c.get_id())==0)
         							{
         								bool x=c.state();
         								if(x==1){
         									float p=c.get_price();
         									float bid;
-        									cout<<p<<"\n is the current value of item"<<endl;
+        									cout<<p<<" is the current value of item"<<endl;
         									cout<<"\n Enter your bid : ";
         									cin>>bid;
         									if(p<bid){
@@ -684,7 +695,7 @@ int main()				// main section starts here
              				}      	  	      
       	  	      	        }while(j!=5);
       	  	      	   }
-      	  	      	   else cout<<"\n User not approved by Admin"<<endl;
+        				 
       	  	      	}
       	  	      	break;
       	  	      	}
@@ -725,8 +736,10 @@ int main()				// main section starts here
       		switch(e)
       		{
       			case 1:
-      				{  
-      				    cout<<"\n Enter the details as a seller ...........\n";  
+      				{  		
+      						DBMS d;
+      						Seller s;
+      						cout<<"\n Enter the details as a seller ...........\n";  
 	 			   		s.get_function();
 	 			   		d.add_Seller(s);
 						cout<<"\n";             	      
@@ -734,17 +747,24 @@ int main()				// main section starts here
       	  	      	}
       	  	 	case 2:
       	  	      	{	
-      	  	      	char i[20];
+      	  	      		Seller s;
+      	  	      		DBMS d;
+      	  	      		char i[20];
         			cout<<"\n Enter the Seller e-mail : ";
         			cin>>i; 
         			s=d.fetch_Seller(i);
         			if(strcmp(i,s.get_email())==0){
-        			     if(s.get_status()){	
-      	  	      		     		do{
-      	  	      		     			
-            						cout<<"\n";
-            						cout<<"\n";
-            						cout<<"\n \t\t\t========================================\n";
+        			     if(s.get_status()==0)
+        				 	{       				
+        				  	cout<<"\n User not approved by Admin"<<endl;
+        				  	goto m;
+        				  	break;    				  
+        				  	}
+        				 else{	
+      	  	      		     	do{      	  	      		     			
+            					cout<<"\n";
+            					cout<<"\n";
+            					cout<<"\n \t\t\t========================================\n";
       							cout<<"\n\t\t\t  WELCOME TO COMMIDITY TRADING CENTER  \n";
      							cout<<"\n \t\t\t========================================\n\n";
       							cout<<"\n \t\t\t  * * * * * * * * * * * * * * * ";
@@ -766,7 +786,8 @@ int main()				// main section starts here
 			   					 d.update_Seller(s);   	  	
       	 							 break;      	  	      
       	  	      					}
-      	  	 					case 2:{
+      	  	 					case 2:{	
+      	  	 							Commodity c;
       	  	 							c.get_function(i);
       	  	 							d.add_Commodity(c);
       	  	       						break;      	  	   
@@ -775,14 +796,13 @@ int main()				// main section starts here
       	  	       					s.set_accept();   	  	       
       	  	       					break;      	  	      
       	  	        				}
-      	  	        				case 4:
+      	  	        			case 4:
       	  	        				{
       	  	       						break;      	  	           	  	        				
              						}
              					}
              			   	   }while(k!=4);
-             			        }
-             			        else cout<<"\n User not approved by Admin"<<endl;
+             			      }            			        
              			     }
              			 break;
              			}
@@ -811,7 +831,7 @@ int main()				// main section starts here
                break;
         } 
       }							// main switch ends here
-    }     
+    }  
   cout<<"\n";
   return 0;
 } 
