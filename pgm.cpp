@@ -24,15 +24,15 @@ class Commodity      //commidity class starts here
                 Commodity(){}			// constructor
                 void get_function(const char* i)	// to get the details of the commodity and the name of the seller
 				{
-                        cout<<"Seller email : "<<i;
+                        cout<<"\n Seller email : "<<i;
                         strcpy(s_email,i);
-                        cout<<"\nEnter name of commodity:"<<endl;
+                        cout<<"\n Enter name of commodity:"<<endl;
                         cin>>cname;
-                        cout<<"\nEnter commodity ID:"<<endl;
+                        cout<<"\n Enter commodity ID:"<<endl;
                         cin>>c_id;
-                        cout<<"\nEnter weight of commodity:"<<endl;
+                        cout<<"\n Enter weight of commodity:"<<endl;
                         cin>>weight;
-                        cout<<"\nEnter price of commodity:"<<endl;
+                        cout<<"\n Enter price of commodity:"<<endl;
                         cin>>price;
                         strcpy(hbidder,"nil");
                         cout<<"\n";
@@ -684,7 +684,7 @@ int main()				// main section starts here
              				}      	  	      
       	  	      	        }while(j!=5);
       	  	      	   }
-      	  	      	   else cout<<"User not approved by Admin"<<endl;
+      	  	      	   else cout<<"\n User not approved by Admin"<<endl;
       	  	      	}
       	  	      	break;
       	  	      	}
@@ -782,7 +782,7 @@ int main()				// main section starts here
              					}
              			   	   }while(k!=4);
              			        }
-             			        else cout<<"User not approved by Admin"<<endl;
+             			        else cout<<"\n User not approved by Admin"<<endl;
              			     }
              			 break;
              			}
